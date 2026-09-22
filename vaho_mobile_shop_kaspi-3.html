@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Vaho Mobile</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#111827}
+.app{max-width:520px;margin:auto;padding-bottom:82px}
+.hero{margin:14px;border-radius:22px;padding:22px;background:linear-gradient(135deg,#1261ff,#19a7ff);color:white;box-shadow:0 8px 24px #1261ff33}
+.hero small{opacity:.85;font-weight:700}.hero h1{margin:6px 0 0;font-size:28px}
+.card{background:#fff;margin:14px;padding:16px;border-radius:18px;box-shadow:0 3px 14px #0000000b}
+.title{font-weight:800;font-size:18px;margin-bottom:12px}
+input{width:100%;padding:14px;border:1px solid #d9e0ea;border-radius:12px;font-size:16px;outline:none}
+button{border:0;border-radius:12px;padding:13px 15px;font-weight:700;font-size:15px;cursor:pointer}
+.find{margin-top:10px;width:100%;background:#1261ff;color:#fff}
+.friend{width:100%;margin-top:10px;background:#eef4ff;color:#1261ff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.amount{background:#f2f5f9;border:1px solid #e3e8ef}
+.amount.active{background:#1261ff;color:#fff;border-color:#1261ff}
+.pay{width:100%;margin-top:10px;background:#111827;color:#fff}
+.note{font-size:13px;color:#6b7280;margin-top:10px;line-height:1.4}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e7eb;display:flex;justify-content:center}
+.nav{max-width:520px;width:100%;display:flex;justify-content:space-around;padding:10px}
+.nav button{background:none;color:#6b7280}.nav button.active{color:#1261ff}
+.hidden{display:none}.status{margin-top:10px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <small>ИГРОВАЯ КАРТА</small>
+    <h1>VAHO MOBILE</h1>
+  </div>
+
+  <div class="card" style="padding:12px 16px;">
+    <button class="find" onclick="showKaspi()">💳 Пополнить через Kaspi</button>
+  </div>
+
+  <section id="shop">
+    <div class="card">
+      <div class="title">Кому пополняем?</div>
+      <input id="nick" placeholder="Введите игровой никнейм">
+      <button class="find" onclick="findPlayer()">Найти</button>
+      <button class="friend" onclick="gift()">🎁 Подарить другу</button>
+      <div id="player" class="status"></div>
+    </div>
+
+    <div class="card">
+      <div class="title">Выберите сумму</div>
+      <div class="grid">
+        <button class="amount" onclick="selectAmount(100,this)">100</button>
+        <button class="amount" onclick="selectAmount(250,this)">250</button>
+        <button class="amount" onclick="selectAmount(500,this)">500</button>
+        <button class="amount" onclick="selectAmount(1000,this)">1000</button>
+        <button class="amount" onclick="selectAmount(2500,this)">2500</button>
+        <button class="amount" onclick="selectAmount(5000,this)">5000</button>
+      </div>
+      <input id="custom" type="number" min="1" placeholder="Своя сумма" style="margin-top:10px">
+      <button class="pay" onclick="pay()">💳 Оплатить</button>
+      <div class="note">После подключения платёжной системы кнопка будет создавать настоящий заказ. Сейчас это демонстрационная версия.</div>
+    </div>
+  </section>
+
+  <section id="top" class="hidden">
+    <div class="card"><div class="title">🏆 Топ недели</div><p>Здесь можно вывести игроков с наибольшими пополнениями.</p></div>
+  </section>
+
+  <section id="profile" class="hidden">
+    <div class="card"><div class="title">👤 Профиль</div><p>История заказов и статус платежей появятся после подключения backend.</p></div>
+  </section>
+</div>
+
+<div class="bottom">
+  <div class="nav">
+    <button class="active" onclick="tab('shop',this)">🛒 Магазин</button>
+    <button onclick="tab('top',this)">🏆 Топ недели</button>
+    <button onclick="tab('profile',this)">👤 Профиль</button>
+  </div>
+</div>
+
+<script>
+let selected=0;
+function selectAmount(n,el){
+ selected=n;
+ document.querySelectorAll('.amount').forEach(x=>x.classList.remove('active'));
+ el.classList.add('active');
+ document.getElementById('custom').value='';
+}
+function findPlayer(){
+ const nick=document.getElementById('nick').value.trim();
+ document.getElementById('player').textContent=nick?'Никнейм указан: '+nick:'Введите никнейм.';
+}
+function gift(){alert('Введите никнейм друга и выберите сумму.');}
+function pay(){
+ const nick=document.getElementById('nick').value.trim();
+ const custom=Number(document.getElementById('custom').value);
+ const amount=custom||selected;
+ if(!nick){alert('Сначала укажите игровой никнейм.');return}
+ if(!amount||amount<1){alert('Выберите сумму.');return}
+ alert('Демо-заказ: '+amount+' ₸ для '+nick+'. Платёжную систему нужно подключить на сервере.');
+}
+function tab(id,el){
+ ['shop','top','profile'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id));
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+ el.classList.add('active');
+}
+
+function showKaspi(){
+  document.getElementById('kaspi').classList.remove('hidden');
+  document.getElementById('kaspi').scrollIntoView({behavior:'smooth'});
+}
+function copyKaspi(){
+  const card='4400430033538395';
+  navigator.clipboard.writeText(card).then(()=>{
+    document.getElementById('kaspiStatus').textContent='Номер карты скопирован.';
+  }).catch(()=>{
+    document.getElementById('kaspiStatus').textContent='Скопируйте номер карты вручную.';
+  });
+}
+function paidKaspi(){
+  document.getElementById('kaspiStatus').textContent='Заявка отправлена. Автоматическая проверка платежа пока не подключена.';
+}
+
+</script>
+</body>
+</html>
